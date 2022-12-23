@@ -1,4 +1,4 @@
-require 'omniauth-oauth2'
+require "omniauth-oauth2"
 
 module OmniAuth
   module Strategies
@@ -11,22 +11,23 @@ module OmniAuth
         site: "https://id.twitch.tv",
         authorize_url: "/oauth2/authorize",
         token_url: "/oauth2/token",
+        auth_scheme: :request_body,
         connection_opts: {
           headers: {
-            client_id: ENV['TWITCH_CLIENT_ID']
-          }
-        }
+            client_id: ENV["TWITCH_CLIENT_ID"],
+          },
+        },
       }
 
       option :access_token_options, {
         header_format: "Bearer %s",
-        param_name: "access_token"
+        param_name: "access_token",
       }
 
       option :authorize_options, [:scope]
 
       option :token_params, {
-        client_secret: ENV['TWITCH_SECRET']
+        client_secret: ENV["TWITCH_SECRET"],
       }
 
       credentials do
@@ -48,20 +49,20 @@ module OmniAuth
           nickname: raw_info["login"],
           description: raw_info["description"],
           image: raw_info["profile_image_url"],
-          urls: { Twitch: "http://www.twitch.tv/#{raw_info['login']}" }
+          urls: { Twitch: "http://www.twitch.tv/#{raw_info["login"]}" },
         }
       end
 
       extra do
         {
-          raw_info: raw_info
+          raw_info: raw_info,
         }
       end
 
       def raw_info
         @raw_info ||=
-          access_token.get("https://api.twitch.tv/helix/users").parsed.
-          fetch("data").fetch(0)
+          access_token.get("https://api.twitch.tv/helix/users", headers: { "Client-ID" => client.id }).parsed.
+            fetch("data").fetch(0)
       end
 
       def build_access_token
@@ -71,7 +72,7 @@ module OmniAuth
       end
 
       def access_token_options
-        options.access_token_options.inject({}) { |h,(k,v)| h[k.to_sym] = v; h }
+        options.access_token_options.inject({}) { |h, (k, v)| h[k.to_sym] = v; h }
       end
 
       def callback_url
@@ -82,7 +83,7 @@ module OmniAuth
       def authorize_params
         super.tap do |params|
           options[:authorize_options].each do |k|
-            params[k] = request.params[k.to_s] unless [nil, ''].include?(request.params[k.to_s])
+            params[k] = request.params[k.to_s] unless [nil, ""].include?(request.params[k.to_s])
           end
           params[:scope] = params[:scope] || DEFAULT_SCOPE
         end
