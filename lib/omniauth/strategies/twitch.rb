@@ -12,11 +12,6 @@ module OmniAuth
         authorize_url: "/oauth2/authorize",
         token_url: "/oauth2/token",
         auth_scheme: :request_body,
-        connection_opts: {
-          headers: {
-            client_id: ENV["TWITCH_CLIENT_ID"],
-          },
-        },
       }
 
       option :access_token_options, {
